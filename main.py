@@ -1,7 +1,6 @@
 import logging
 from telegram import ReplyKeyboardMarkup, Update, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, ConversationHandler, \
-    MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, CallbackContext, ConversationHandler, MessageHandler, Filters
 from random import randint
 import json
 import Classes
