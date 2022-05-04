@@ -47,6 +47,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 # UTILITY FUNCTIONS
 # input: n_dice_to_roll"d"dice_type
 # output: string with rolls
