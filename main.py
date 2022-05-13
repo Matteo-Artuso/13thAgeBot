@@ -9,7 +9,7 @@ import Token
 
 # CONV HANDLERS STATES
 # createPC
-CLASS, ABILITYROLL, ABILITYASSIGN, ABILITYBONUS, MPS, TALENTS, FEAT, ONEUNIQUETHING, ICON, ICONRELATIONSHIPCHOICE, ICONRELATIONSHIPPOINT, ICONRELATIONSHIPSAVE, BACKGROUNDPOINTS, BACKGROUNDSASK = range(14)
+NAME, CLASS, ABILITYROLL, ABILITYASSIGN, ABILITYBONUS, MPS, TALENTS, FEAT, ONEUNIQUETHING, ICON, ICONRELATIONSHIPCHOICE, ICONRELATIONSHIPPOINT, ICONRELATIONSHIPSAVE, BACKGROUNDPOINTS, BACKGROUNDSASK = range(15)
 # items
 TYPE, WEAPON, WEAPONPICKUP, ARMOR, ARMORWEAR, ARMORNOWEAR, GENERIC = range(7)
 # balance
@@ -256,18 +256,14 @@ def createPC(update: Update, context: CallbackContext):
     update.message.reply_text("First time here! Let's build your character")
     # create character sheet as dict
     players[user.name] = {}
-    # equipment initialize
-    players[user.name]['Active'] = {
-        'Weapon': '',
-        'Armor': '',
-        'shield': False
-    }
-    players[user.name]['Equipment'] = {
-        'Weapon': {},
-        'Armor': {},
-        'shield': 0,
-        'generic': {}
-    }
+    # Name
+    update.message.reply_text("Write your character name")
+    return NAME
+
+
+def Name(update: Update, context: CallbackContext):
+    user = update.message.from_user
+    players[user.name]['name'] = update.message.text
     # Race
     reply_markup = list_custom_keyboard(Races.races.keys())
     update.message.reply_text("Choose a Race:", reply_markup=reply_markup)
@@ -292,6 +288,18 @@ def AbilityRoll(update: Update, context: CallbackContext):
     players[user.name]['class'] = player_class
     players[user.name]['Basic Attacks'] = Classes.classes[player_class]['Basic Attacks']
     print(players)
+    # equipment initialize
+    players[user.name]['Active'] = {
+        'Weapon': '',
+        'Armor': '',
+        'shield': False
+    }
+    players[user.name]['Equipment'] = {
+        'Weapon': {},
+        'Armor': {},
+        'shield': 0,
+        'generic': {}
+    }
     # Ability Rolls
     update.effective_message.reply_text("Now let's determine your Ability Scores. Roll 4d6 six times")
     update.effective_message.reply_text(f"#1 Roll 4d6", reply_markup=ReplyKeyboardMarkup([["ROLL"]], one_time_keyboard=True))
@@ -430,7 +438,7 @@ def OneUniqueThing(update: Update, context: CallbackContext):
     # racial power
     players[user.name]['racial power'] = Races.races[players[user.name]['race']]['racial power']
     # One Unique Thing
-    update.effective_message.reply_text("Now choose your One Unique Thing, please REPLY TO THIS MESSAGE it", reply_markup=ReplyKeyboardRemove())
+    update.effective_message.reply_text("Now choose your One Unique Thing, please REPLY TO THIS MESSAGE writing it", reply_markup=ReplyKeyboardRemove())
     return ICON
 
 
@@ -528,7 +536,7 @@ def BackgroundsAsk(update: Update, context: CallbackContext):
 
 
 def Roll(update: Update, context: CallbackContext):
-    update.message.reply_text("REPLY TO THIS MESSAGE how many and which dice do you want to roll in dice notation")
+    update.message.reply_text("REPLY TO THIS MESSAGE writing how many and which dice do you want to roll in dice notation")
     return AMOUNT
 
 
@@ -578,7 +586,7 @@ def PickupType(update: Update, context: CallbackContext):
             json.dump(players, f, indent=4)
         return ConversationHandler.END
     if object_type == 'generic':
-        update.message.reply_text("Please REPLY TO THIS MESSAGE it", reply_markup=ReplyKeyboardRemove())
+        update.message.reply_text("Please REPLY TO THIS MESSAGE writing it", reply_markup=ReplyKeyboardRemove())
         return GENERIC
 
 
@@ -1120,8 +1128,8 @@ def ShowBalance(update: Update, context: CallbackContext):
 
 
 # unused function but necessary as fallback
-def error(update: Update, context: CallbackContext):
-    update.effective_message.reply_text("ERROR")
+def cancel(update: Update, context: CallbackContext):
+    update.effective_message.reply_text("command canceled", reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
@@ -1136,84 +1144,85 @@ dispatcher = updater.dispatcher
 create_pc_handler = ConversationHandler(
     entry_points=[CommandHandler("create_pc", createPC)],
     states={
+        NAME: [MessageHandler(Filters.text & ~Filters.command, Name)],
         CLASS: [MessageHandler(Filters.text & ~Filters.command, Class)],
-        ABILITYROLL: [MessageHandler(Filters.text, AbilityRoll)],
-        ABILITYASSIGN: [MessageHandler(Filters.text, AbilityAssign)],
-        ABILITYBONUS: [MessageHandler(Filters.text, AbilityBonus)],
-        MPS: [MessageHandler(Filters.text, Mps)],     # Maneuvers, Powers, Spells
-        TALENTS: [MessageHandler(Filters.text, Talents)],
-        FEAT: [MessageHandler(Filters.text, Feat)],
-        ONEUNIQUETHING: [MessageHandler(Filters.text, OneUniqueThing)],
-        ICON: [MessageHandler(Filters.text, Icon)],
-        ICONRELATIONSHIPCHOICE: [MessageHandler(Filters.text, IconRelationshipChoice)],
-        ICONRELATIONSHIPPOINT: [MessageHandler(Filters.text, IconRelationshipPoint)],
-        ICONRELATIONSHIPSAVE: [MessageHandler(Filters.text, IconRelationshipSave)],
-        BACKGROUNDPOINTS: [MessageHandler(Filters.text, BackgroundPoints)],
-        BACKGROUNDSASK: [MessageHandler(Filters.text, BackgroundsAsk)]
+        ABILITYROLL: [MessageHandler(Filters.text & ~Filters.command, AbilityRoll)],
+        ABILITYASSIGN: [MessageHandler(Filters.text & ~Filters.command, AbilityAssign)],
+        ABILITYBONUS: [MessageHandler(Filters.text & ~Filters.command, AbilityBonus)],
+        MPS: [MessageHandler(Filters.text & ~Filters.command, Mps)],     # Maneuvers, Powers, Spells
+        TALENTS: [MessageHandler(Filters.text & ~Filters.command, Talents)],
+        FEAT: [MessageHandler(Filters.text & ~Filters.command, Feat)],
+        ONEUNIQUETHING: [MessageHandler(Filters.text & ~Filters.command, OneUniqueThing)],
+        ICON: [MessageHandler(Filters.text & ~Filters.command, Icon)],
+        ICONRELATIONSHIPCHOICE: [MessageHandler(Filters.text & ~Filters.command, IconRelationshipChoice)],
+        ICONRELATIONSHIPPOINT: [MessageHandler(Filters.text & ~Filters.command, IconRelationshipPoint)],
+        ICONRELATIONSHIPSAVE: [MessageHandler(Filters.text & ~Filters.command, IconRelationshipSave)],
+        BACKGROUNDPOINTS: [MessageHandler(Filters.text & ~Filters.command, BackgroundPoints)],
+        BACKGROUNDSASK: [MessageHandler(Filters.text & ~Filters.command, BackgroundsAsk)]
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 roll_handler = ConversationHandler(
     entry_points=[CommandHandler("roll", Roll)],
     states={
-        AMOUNT: [MessageHandler(Filters.text, RollResult)],
+        AMOUNT: [MessageHandler(Filters.text & ~Filters.command, RollResult)],
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 pickup_handler = ConversationHandler(
     entry_points=[CommandHandler("pickup", Pickup)],
     states={
-        TYPE: [MessageHandler(Filters.text, PickupType)],
-        WEAPON: [MessageHandler(Filters.text, WeaponChoice)],
-        WEAPONPICKUP: [MessageHandler(Filters.text, WeaponPickup)],
-        ARMOR: [MessageHandler(Filters.text, ArmorPickup)],
-        ARMORWEAR: [MessageHandler(Filters.text, ArmorPickupWear)],
-        ARMORNOWEAR: [MessageHandler(Filters.text, ArmorPickupNoWear)],
-        GENERIC: [MessageHandler(Filters.text, GenericPickup)]
+        TYPE: [MessageHandler(Filters.text & ~Filters.command, PickupType)],
+        WEAPON: [MessageHandler(Filters.text & ~Filters.command, WeaponChoice)],
+        WEAPONPICKUP: [MessageHandler(Filters.text & ~Filters.command, WeaponPickup)],
+        ARMOR: [MessageHandler(Filters.text & ~Filters.command, ArmorPickup)],
+        ARMORWEAR: [MessageHandler(Filters.text & ~Filters.command, ArmorPickupWear)],
+        ARMORNOWEAR: [MessageHandler(Filters.text & ~Filters.command, ArmorPickupNoWear)],
+        GENERIC: [MessageHandler(Filters.text & ~Filters.command, GenericPickup)]
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 drop_handler = ConversationHandler(
     entry_points=[CommandHandler("drop", Drop)],
     states={
-        TYPE: [MessageHandler(Filters.text, DropType)],
-        WEAPON: [MessageHandler(Filters.text, WeaponDrop)],
-        ARMOR: [MessageHandler(Filters.text, ArmorDrop)],
-        GENERIC: [MessageHandler(Filters.text, GenericDrop)]
+        TYPE: [MessageHandler(Filters.text & ~Filters.command, DropType)],
+        WEAPON: [MessageHandler(Filters.text & ~Filters.command, WeaponDrop)],
+        ARMOR: [MessageHandler(Filters.text & ~Filters.command, ArmorDrop)],
+        GENERIC: [MessageHandler(Filters.text & ~Filters.command, GenericDrop)]
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 equip_handler = ConversationHandler(
     entry_points=[CommandHandler("equip", Equip)],
     states={
-        TYPE: [MessageHandler(Filters.text, EquipType)],
-        WEAPON: [MessageHandler(Filters.text, EquipWeapon)],
-        ARMOR: [MessageHandler(Filters.text, EquipArmor)]
+        TYPE: [MessageHandler(Filters.text & ~Filters.command, EquipType)],
+        WEAPON: [MessageHandler(Filters.text & ~Filters.command, EquipWeapon)],
+        ARMOR: [MessageHandler(Filters.text & ~Filters.command, EquipArmor)]
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 unequip_handler = ConversationHandler(
     entry_points=[CommandHandler("unequip", Unequip)],
     states={
-        TYPE: [MessageHandler(Filters.text, UnequipType)],
+        TYPE: [MessageHandler(Filters.text & ~Filters.command, UnequipType)],
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 cash_handler = ConversationHandler(
     entry_points=[CommandHandler("cash", Cash)],
     states={
-        AMOUNT: [MessageHandler(Filters.text, Amount)],
-        SAVE: [MessageHandler(Filters.text, CashSave)],
+        AMOUNT: [MessageHandler(Filters.text & ~Filters.command, Amount)],
+        SAVE: [MessageHandler(Filters.text & ~Filters.command, CashSave)],
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 spend_handler = ConversationHandler(
     entry_points=[CommandHandler("spend", Spend)],
     states={
-        AMOUNT: [MessageHandler(Filters.text, Amount)],
-        SAVE: [MessageHandler(Filters.text, SpendSave)],
+        AMOUNT: [MessageHandler(Filters.text & ~Filters.command, Amount)],
+        SAVE: [MessageHandler(Filters.text & ~Filters.command, SpendSave)],
     },
-    fallbacks=[CommandHandler('stop', error)]
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(create_pc_handler)
