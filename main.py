@@ -14,8 +14,6 @@ CLASS, ABILITYROLL, ABILITYASSIGN, ABILITYBONUS, MPS, TALENTS, FEAT, ONEUNIQUETH
 TYPE, WEAPON, WEAPONPICKUP, ARMOR, ARMORWEAR, ARMORNOWEAR, GENERIC = range(7)
 # balance
 AMOUNT, SAVE = range(2)
-"""game players"""
-number_of_players = 0
 with open("players.json", 'r') as fp:
     players = json.load(fp)
 """create playable character"""
@@ -251,7 +249,6 @@ def start(update: Update, context: CallbackContext):
 
 
 def createPC(update: Update, context: CallbackContext):
-    global number_of_players
     user = update.effective_user
     if user.name in players.keys():
         update.message.reply_text("Already created your character")
@@ -259,8 +256,6 @@ def createPC(update: Update, context: CallbackContext):
     update.message.reply_text("First time here! Let's build your character")
     # create character sheet as dict
     players[user.name] = {}
-    number_of_players += 1
-    print('number of players: ', number_of_players)
     # equipment initialize
     players[user.name]['Active'] = {
         'Weapon': '',
@@ -533,7 +528,7 @@ def BackgroundsAsk(update: Update, context: CallbackContext):
 
 
 def Roll(update: Update, context: CallbackContext):
-    update.message.reply_text("Write how many and which dice do you want to roll in dice notation")
+    update.message.reply_text("REPLY TO THIS MESSAGE how many and which dice do you want to roll in dice notation")
     return AMOUNT
 
 
