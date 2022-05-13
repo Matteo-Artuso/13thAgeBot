@@ -430,7 +430,7 @@ def OneUniqueThing(update: Update, context: CallbackContext):
     # racial power
     players[user.name]['racial power'] = Races.races[players[user.name]['race']]['racial power']
     # One Unique Thing
-    update.effective_message.reply_text("Now choose your One Unique Thing, please write it", reply_markup=ReplyKeyboardRemove())
+    update.effective_message.reply_text("Now choose your One Unique Thing, please REPLY TO THIS MESSAGE it", reply_markup=ReplyKeyboardRemove())
     return ICON
 
 
@@ -578,7 +578,7 @@ def PickupType(update: Update, context: CallbackContext):
             json.dump(players, f, indent=4)
         return ConversationHandler.END
     if object_type == 'generic':
-        update.message.reply_text("Please write it", reply_markup=ReplyKeyboardRemove())
+        update.message.reply_text("Please REPLY TO THIS MESSAGE it", reply_markup=ReplyKeyboardRemove())
         return GENERIC
 
 
@@ -1136,7 +1136,7 @@ dispatcher = updater.dispatcher
 create_pc_handler = ConversationHandler(
     entry_points=[CommandHandler("create_pc", createPC)],
     states={
-        CLASS: [MessageHandler(Filters.text, Class)],
+        CLASS: [MessageHandler(Filters.text & ~Filters.command, Class)],
         ABILITYROLL: [MessageHandler(Filters.text, AbilityRoll)],
         ABILITYASSIGN: [MessageHandler(Filters.text, AbilityAssign)],
         ABILITYBONUS: [MessageHandler(Filters.text, AbilityBonus)],
