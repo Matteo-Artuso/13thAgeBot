@@ -10,6 +10,7 @@ import Token
 # CONV HANDLERS STATES
 # createPC
 NAME, CLASS, ABILITYROLL, ABILITYASSIGN, ABILITYBONUS, MPS, TALENTS, FEAT, ONEUNIQUETHING, ICON, ICONRELATIONSHIPCHOICE, ICONRELATIONSHIPPOINT, ICONRELATIONSHIPSAVE, BACKGROUNDPOINTS, BACKGROUNDSASK = range(15)
+SURE = 0
 # items
 TYPE, WEAPON, WEAPONPICKUP, ARMOR, ARMORWEAR, ARMORNOWEAR, GENERIC = range(7)
 # balance
@@ -245,7 +246,7 @@ def show_balance(player_name):
 # BOT HANDLERS FUNCTIONS
 def start(update: Update, context: CallbackContext):
     user = update.effective_user
-    update.message.reply_text(f"Hi {user.first_name}!")
+    update.message.reply_text(f"Hi {user.first_name}!", reply_markup=ReplyKeyboardRemove())
 
 
 def createPC(update: Update, context: CallbackContext):
@@ -530,6 +531,28 @@ def BackgroundsAsk(update: Update, context: CallbackContext):
     players[user.name]['Balance'] = 2500
     update.effective_message.reply_text(show_balance(user.name))
     update.effective_message.reply_text("Your character  is completed!")
+    with open("players.json", 'w') as f:
+        json.dump(players, f, indent=4)
+    return ConversationHandler.END
+
+
+def deletePC(update: Update, context: CallbackContext):
+    user = update.effective_user
+    if user.name not in players.keys():
+        update.message.reply_text("You haven't already created your character")
+        return ConversationHandler.END
+    update.message.reply_text("Are you sure to delete your character?", reply_markup=ReplyKeyboardMarkup([["YES"],["NO"]], one_time_keyboard=True))
+    return SURE
+
+
+def Sure(update: Update, context: CallbackContext):
+    user = update.effective_user
+    response = update.message.text
+    if response == 'YES':
+        update.message.reply_text(f"{players[user.name]['name']} deleted", reply_markup=ReplyKeyboardRemove())
+        del players[user.name]
+    else:
+        update.message.reply_text(f"{players[user.name]['name']} NOT deleted", reply_markup=ReplyKeyboardRemove())
     with open("players.json", 'w') as f:
         json.dump(players, f, indent=4)
     return ConversationHandler.END
@@ -1162,6 +1185,13 @@ create_pc_handler = ConversationHandler(
     },
     fallbacks=[CommandHandler('cancel', cancel)]
 )
+delete_pc_handler = ConversationHandler(
+    entry_points=[CommandHandler("delete_pc", deletePC)],
+    states={
+        SURE: [MessageHandler(Filters.text & ~Filters.command, Sure)],
+    },
+    fallbacks=[CommandHandler('cancel', cancel)]
+)
 roll_handler = ConversationHandler(
     entry_points=[CommandHandler("roll", Roll)],
     states={
@@ -1226,6 +1256,7 @@ spend_handler = ConversationHandler(
 )
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(create_pc_handler)
+dispatcher.add_handler(delete_pc_handler)
 dispatcher.add_handler(roll_handler)
 dispatcher.add_handler(pickup_handler)
 dispatcher.add_handler(drop_handler)
