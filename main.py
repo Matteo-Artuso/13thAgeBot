@@ -1028,6 +1028,11 @@ def SpendSave(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 
+def ShowCharacterSheet(update: Update, context: CallbackContext):
+    user = update.effective_user
+    update.message.reply_text(json.dumps(players[user.name], indent=4))    # attenzione a differenza tra dump e dumps
+
+
 def ShowBasicAttacks(update: Update, context: CallbackContext):
     user = update.effective_user
     if user.name not in players.keys():
@@ -1264,6 +1269,7 @@ dispatcher.add_handler(equip_handler)
 dispatcher.add_handler(unequip_handler)
 dispatcher.add_handler(cash_handler)
 dispatcher.add_handler(spend_handler)
+dispatcher.add_handler(CommandHandler("show_character_sheet", ShowCharacterSheet))
 dispatcher.add_handler(CommandHandler("show_basic_attacks", ShowBasicAttacks))
 dispatcher.add_handler(CommandHandler("show_mps", ShowMPS))
 dispatcher.add_handler(CommandHandler("show_talents", ShowTalents))
