@@ -249,15 +249,6 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text(f"Hi {user.first_name}!", reply_markup=ReplyKeyboardRemove())
 
 
-def barletz(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="ma ti dai fuoco")
-    context.bot.send_message(chat_id=update.effective_chat.id, text=u"\U0001F525")
-
-
-def arco(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=u"\U0001F921")
-
-
 def createPC(update: Update, context: CallbackContext):
     user = update.effective_user
     if user.name in players.keys():
@@ -1269,10 +1260,6 @@ spend_handler = ConversationHandler(
     fallbacks=[CommandHandler('cancel', cancel)]
 )
 dispatcher.add_handler(CommandHandler("start", start))
-
-dispatcher.add_handler(CommandHandler("barletz", barletz))
-dispatcher.add_handler(CommandHandler("arco", arco))
-
 dispatcher.add_handler(create_pc_handler)
 dispatcher.add_handler(delete_pc_handler)
 dispatcher.add_handler(roll_handler)
